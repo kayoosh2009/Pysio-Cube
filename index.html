@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>קוביית סריקה - תרגילים נגד כאב</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #ffffff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .counter {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      z-index: 1000;
+    }
+    .counter:hover {
+      background: #1abc9c;
+    }
+    .container {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.1);
+      padding: 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    input:focus {
+      border-color: #00796b;
+      outline: none;
+    }
+    button {
+      background-color: #00796b;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    h1 {
+      color: #00695c;
+      margin-bottom: 20px;
+      animation: slideIn 0.6s ease;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(-50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .scannerEffect {
+      width: 200px;
+      height: 200px;
+      margin: 30px auto;
+      border: 10px solid #00bcd4;
+      border-radius: 50%;
+      border-top: 10px solid transparent;
+      animation: spin 1.2s linear infinite;
+    }
+  </style>
+</head>
+<body>  <div class="counter" id="counter" onclick="openDashboard()">#0001</div>  <div class="container" id="step1">
+    <h1>איזה סוג כאב אתה מרגיש?</h1>
+    <button onclick="selectPain(0)">כאבי גב תחתון</button>
+    <button onclick="selectPain(1)">כאבי צוואר</button>
+    <button onclick="selectPain(2)">כאבי כתפיים</button>
+    <button onclick="selectPain(3)">כאבי רגליים</button>
+    <button onclick="selectPain(4)">כאבי גב עליון</button>
+  </div>  <div class="container" id="step2" style="display:none">
+    <h1>נא להזין פרטים</h1>
+    <input type="text" id="name" placeholder="שם מלא" />
+    <input type="number" id="age" placeholder="גיל" />
+    <input type="email" id="email" placeholder="אימייל" />
+    <button onclick="saveUserInfo()">הבא</button>
+  </div>  <div class="container" id="step3" style="display:none">
+    <h1>התחל בתרגיל</h1>
+    <video id="exerciseVideo" width="100%" controls autoplay>
+      <source id="videoSource" src="" type="video/mp4" />
+      הדפדפן שלך לא תומך בווידאו.
+    </video>
+    <button onclick="startScan()">התחל סריקה</button>
+  </div>  <div class="container" id="step4" style="display:none">
+    <h1>מתבצעת סריקה...</h1>
+    <div class="scannerEffect" id="scannerAnimation"></div>
+    <p id="finalMessage" style="margin-top: 20px; display: none; font-weight: bold; color: #00796b; font-size: 18px;">
+      אנחנו מנתחים את התרגיל שלך. התוצאות יישלחו אליך בדוא"ל תוך מספר שעות.
+    </p>
+  </div>  <script>
+    let selectedPainIndex = 0;
+    let userCount = 1;
+
+    function updateCounter() {
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      userCount = users.length + 1;
+      document.getElementById('counter').textContent = `#${userCount.toString().padStart(4, '0')}`;
+    }
+
+    function selectPain(index) {
+      selectedPainIndex = index;
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+    }
+
+    function saveUserInfo() {
+      const name = document.getElementById('name').value;
+      const age = document.getElementById('age').value;
+      const email = document.getElementById('email').value;
+
+      if (!name || !age || !email) {
+        alert('נא למלא את כל השדות.');
+        return;
+      }
+
+      const user = { name, age, email, painIndex: selectedPainIndex };
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      users.push(user);
+      localStorage.setItem('users', JSON.stringify(users));
+      updateCounter();
+
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step3').style.display = 'block';
+
+      const video = document.getElementById('exerciseVideo');
+      document.getElementById('videoSource').src = `${selectedPainIndex + 1}.mp4`;
+      video.load();
+    }
+
+    function startScan() {
+      document.getElementById('step3').style.display = 'none';
+      document.getElementById('step4').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('scannerAnimation').style.display = 'none';
+        document.getElementById('finalMessage').style.display = 'block';
+      }, 15000);
+    }
+
+    function openDashboard() {
+      window.open('dash.html', '_blank');
+    }
+
+    updateCounter();
+  </script></body>
+</html>
