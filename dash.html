@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>לוח משתמשים</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      padding: 30px;
+      direction: rtl;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #00796b;
+      color: white;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #e74c3c;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #c0392b;
+    }
+    .download-btn {
+      margin-top: 20px;
+      background-color: #2980b9;
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .download-btn:hover {
+      background-color: #1c5980;
+    }
+  </style>
+</head>
+<body>  <h1>רשימת משתמשים</h1>
+  <button class="download-btn" onclick="downloadCSV()">הורד כקובץ CSV</button>  <table id="userTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>שם</th>
+        <th>גיל</th>
+        <th>אימייל</th>
+        <th>סוג כאב</th>
+        <th>מחיקה</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>  <script>
+    const painTypes = [
+      "כאבי גב תחתון",
+      "כאבי צוואר",
+      "כאבי כתפיים",
+      "כאבי רגליים",
+      "כאבי גב עליון"
+    ];
+
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+      users.forEach((user, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${user.name}</td>
+          <td>${user.age}</td>
+          <td>${user.email}</td>
+          <td>${painTypes[user.painIndex]}</td>
+          <td><button onclick="deleteUser(${index})">מחק</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function deleteUser(index) {
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users.splice(index, 1);
+      localStorage.setItem("users", JSON.stringify(users));
+      loadUsers();
+    }
+
+    function downloadCSV() {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      let csv = "שם,גיל,אימייל,סוג כאב\n";
+      users.forEach(u => {
+        csv += `${u.name},${u.age},${u.email},${painTypes[u.painIndex]}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "users.csv");
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    loadUsers();
+  </script></body>
+</html>
